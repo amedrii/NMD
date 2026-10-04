@@ -1,8 +1,8 @@
-# NMD 0.1.0-preview.1
+# NMD 0.1.1p
 
 First Windows x64 testing build of Nexus Mod Downloader.
 
-Download **NMD-v0.1.0-preview.1-windows-x64.zip**, extract the whole archive, and
+Download **NMD-v0.1.1p-windows-x64.zip**, extract the whole archive, and
 run **NMD/NMD.exe**. No compiler or source checkout is required. The automatic
 GitHub **Source code** downloads are intended for developers.
 

@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     app.setWindowIcon(QIcon(":/icons/nmd.svg"));
     QCoreApplication::setOrganizationName("NMD");
     QCoreApplication::setApplicationName("Nexus Mod Downloader");
-    QCoreApplication::setApplicationVersion("0.1.0");
+    QCoreApplication::setApplicationVersion("0.1.1p");
     const QString serverName = "NMD-" + qEnvironmentVariable("USERNAME", "local");
     QString incoming;
     for (const auto& arg : app.arguments().mid(1))

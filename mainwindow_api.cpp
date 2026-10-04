@@ -15,8 +15,8 @@ void MainWindow::requestJson(
     QNetworkRequest request(QUrl("https://api.nexusmods.com" + path));
     request.setRawHeader("apikey", m_sessionApiKey.toUtf8());
     request.setRawHeader("Application-Name", "NMD");
-    request.setRawHeader("Application-Version", "0.1.0");
-    request.setRawHeader("User-Agent", "NMD/0.1.0");
+        request.setRawHeader("Application-Version", "0.1.1p");
+        request.setRawHeader("User-Agent", "NMD/0.1.1p");
     request.setRawHeader("Accept", "application/json");
     request.setAttribute(
         QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);

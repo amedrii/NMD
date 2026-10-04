@@ -30,7 +30,7 @@ foreach ($module in @('qtcore', 'qtgui', 'qtwidgets', 'qtnetwork', 'qtsvg')) {
         Copy-Item -Destination $destination
 }
 
-$archive = Join-Path $PSScriptRoot 'dist\NMD-v0.1.0-preview.1-windows-x64.zip'
+$archive = Join-Path $PSScriptRoot 'dist\NMD-v0.1.1p-windows-x64.zip'
 Compress-Archive -LiteralPath $packageDirectory -DestinationPath $archive -Force
 $hash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
 "$hash  $([System.IO.Path]::GetFileName($archive))" |

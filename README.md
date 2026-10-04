@@ -8,6 +8,16 @@ Lightweight Nexus Mod Downloader.
 
 A small Windows desktop app for collecting Nexus mod links, resolving their requirements, and saving authorized downloads to one folder. Built with C++17 and Qt 6 Widgets.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/nmd-queue.png" alt="NMD mod queue" width="900">
+</p>
+
+<p align="center">
+  <a href="https://github.com/amedrii/NMD/releases/latest">Download the latest Windows release</a>
+</p>
+
 ## Start
 
 Open **dist/NMD/NMD.exe**. Keep the adjacent DLLs and plugin folders with it.

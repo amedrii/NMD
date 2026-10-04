@@ -189,7 +189,7 @@ void MainWindow::downloadArchive(std::shared_ptr<QueuedMod> entry, const QUrl& i
     {
         auto keepAlive = weak.lock();
         QNetworkRequest request(url);
-        request.setRawHeader("User-Agent", "NMD/0.1.0");
+        request.setRawHeader("User-Agent", "NMD/0.1.1p");
         request.setAttribute(
             QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
         request.setTransferTimeout(60000);
