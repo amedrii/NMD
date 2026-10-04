@@ -13,6 +13,9 @@ GitHub **Source code** downloads are intended for developers.
 - File-specific dependency handling and file/version choices.
 - Authorized free-account downloads after confirmation on Nexus.
 - Download progress, cancellation, safe file writes, and completion history.
+- Duplicate protection keyed by Nexus file ID and file version, while keeping
+  separate archives such as main files and textures.
+- NMD application and executable icon.
 
 ## Testing limitations
 

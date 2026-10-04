@@ -262,6 +262,7 @@ class IntegrationTests
         {
             expect(entry->state == "Ready to confirm", "Each resolved legacy mod is ready");
             expect(!entry->link.file.isEmpty(), "Single main files are selected");
+            expect(entry->version == "1.0", "Selected Nexus file version is tracked");
         }
         auto signedLink = [](int mod, int file, int user = 42)
         {
@@ -280,6 +281,15 @@ class IntegrationTests
         archive.close();
         expect(window.m_downloadHistory.contains("testgame/1/10"),
             "Only completed downloads enter history");
+        expect(window.m_downloadHistory["testgame/1/10"].toObject()["version"].toString() == "1.0",
+            "Completed history records the Nexus file version");
+        auto changedHistory = window.m_downloadHistory["testgame/1/10"].toObject();
+        changedHistory["version"] = "0.9";
+        window.m_downloadHistory["testgame/1/10"] = changedHistory;
+        expect(!window.hasCompletedDownload(window.m_queue[0]),
+            "A different Nexus file version is not treated as a duplicate");
+        changedHistory["version"] = "1.0";
+        window.m_downloadHistory["testgame/1/10"] = changedHistory;
         window.acceptDownloadLink(signedLink(1, 10));
         expect(fake.archives == 1, "Completed archive is skipped on repeated authorization");
         window.acceptDownloadLink(signedLink(2, 20, 99));
@@ -376,6 +386,33 @@ int main(int argc, char** argv)
         "File-specific links parse");
     expect(
         parseModLink("https://nexusmods.com/game/mods/1/").valid(), "Trailing slash is accepted");
+    expect(parseModLink("https://www.nexusmods.com/games/monsterhunterwilds/mods/93").modKey() ==
+               "monsterhunterwilds/93",
+        "New Nexus game-prefixed mod links parse");
+    for (const QString& address :
+        QStringList{"https://www.nexusmods.com/games/monsterhunterwilds/mods/93",
+            "/monsterhunterwilds/mods/93",
+            "/games/monsterhunterwilds/mods/93",
+            "//www.nexusmods.com/monsterhunterwilds/mods/93",
+            "www.nexusmods.com/monsterhunterwilds/mods/93",
+            "http://www.nexusmods.com/monsterhunterwilds/mods/93"})
+    {
+        expect(parseRequirementLink({{"url", address}, {"modId", "93"}}, "anothergame", "1")
+                       .modKey() == "monsterhunterwilds/93",
+            "Requirement URL variants preserve the correct game and mod");
+    }
+    expect(parseRequirementLink(
+               {{"url", ""}, {"modId", 65}, {"gameId", 123}}, "monsterhunterwilds", "123")
+                   .modKey() == "monsterhunterwilds/65",
+        "Missing requirement URLs use explicit same-game identities");
+    expect(!parseRequirementLink(
+               {{"url", ""}, {"modId", 65}, {"gameId", 456}}, "monsterhunterwilds", "123")
+               .valid(),
+        "Cross-game requirements never inherit the parent game by guesswork");
+    expect(!parseRequirementLink(
+               {{"url", "https://evil.test/game/mods/93"}, {"modId", 93}}, "game", "123")
+               .valid(),
+        "Non-Nexus requirement links are rejected");
     expect(!parseModLink("https://nexusmods.com.evil.test/game/mods/1").valid(),
         "Lookalike hosts are rejected");
     expect(!parseModLink("https://evil.test@nexusmods.com/game/mods/1").valid(),

@@ -41,3 +41,25 @@ third-party source available alongside binary releases as their licenses require
 
 Nexus policy: https://help.nexusmods.com/article/114-api-acceptable-use-policy
 GitHub releases: https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases
+
+## Later source and release updates
+
+From the project folder, rebuild and package first:
+
+```powershell
+.\package-release.ps1
+```
+
+Then publish the source changes:
+
+```powershell
+git status
+git add .
+git commit -m "Describe the change"
+git push origin main
+```
+
+For a new downloadable build, choose a new tag such as `v0.1.0-preview.2` on
+GitHub's **Releases** page, paste the matching notes from `RELEASE-NOTES.md`,
+attach the ZIP and its `.sha256` file from `dist/`, and mark it as a pre-release.
+The tag should point to the commit you just pushed.

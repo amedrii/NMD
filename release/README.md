@@ -14,16 +14,22 @@ and the app's source code are not needed to run this download.
    Paste it into the app. Your key stays in memory for this session.
 2. Choose a folder for the downloaded mod archives.
 3. Paste one Nexus mod link per line and click **Collect mods + requirements**.
-4. Review file choices, requirement notes, and any **Needs attention** rows.
-5. Click **Connect Nexus download buttons** to register the app for Nexus
+4. When a mod has several files, tick every archive you need in the file chooser
+   (for example, the main archive and a texture archive). The main file starts
+   selected, and each checked file becomes its own queue item.
+5. Review requirement notes and any **Needs attention** rows.
+6. Click **Connect Nexus download buttons** to register the app for Nexus
    download links. This can replace your current mod manager's link handler;
    click the button again to restore the previous handler.
-6. Click **Open next download**, then choose **Mod manager download** and
+7. Click **Open next download**, then choose **Mod manager download** and
    **Slow download** on Nexus. Let your browser open NMD.
-7. Confirm each remaining file on Nexus. The app saves the authorized downloads
+8. Confirm each remaining file on Nexus. The app saves the authorized downloads
    and skips files already recorded as complete.
 
-The app collects requirements recursively and avoids duplicates. It downloads
+The app collects requirements recursively and avoids duplicates. It remembers
+completed Nexus file IDs and versions, so the same version is not downloaded
+twice while separate files such as a main archive and textures remain distinct.
+It downloads
 archives; it does not install, extract, or execute mods. Off-site requirements,
 DLC, and conditional requirements in author notes need your review.
 

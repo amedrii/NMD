@@ -94,6 +94,7 @@ class MainWindow : public QMainWindow
     QPointer<QNetworkReply> m_downloadReply;
 
     QString m_queuePath;
+    std::function<bool(const QUrl&)> m_openBrowser;
     QList<std::shared_ptr<QueuedMod>> m_queue;
     QJsonObject m_downloadHistory;
 

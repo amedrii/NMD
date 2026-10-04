@@ -226,21 +226,24 @@ void MainWindow::openModPage(bool advance)
     if (advance)
     {
         entry.reset();
-        for (auto& entry : m_queue)
+        for (const auto& candidate : m_queue)
         {
-            if (entry->resolved && !entry->downloaded && entry->state == "Ready to confirm")
+            if (candidate->resolved && !candidate->downloaded &&
+                candidate->state == "Ready to confirm")
             {
-                entry = entry;
+                entry = candidate;
                 break;
             }
         }
     }
     if (!entry)
     {
-        log("Select a mod in the queue first.");
+        log(advance ? "No downloads are ready. Reopen a waiting mod with Open selected on Nexus, "
+                      "or collect requirements again."
+                    : "Select a mod in the queue first.");
         return;
     }
-    if (!QDesktopServices::openUrl(entry->link.page()))
+    if (!m_openBrowser(entry->link.page()))
     {
         log("Could not open your browser.");
         return;

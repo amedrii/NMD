@@ -111,7 +111,7 @@ void MainWindow::resolveModRequirements(std::shared_ptr<QueuedMod> entry, int of
             legacyModRequirementsEnabled
             modRequirements {
                 nexusRequirements(offset: $offset, count: 100) {
-                    totalCount nodes { externalRequirement modId modName notes url }
+                    totalCount nodes { externalRequirement gameId modId modName notes url }
                 }
                 dlcRequirements { notes gameExpansion { name } }
             }
@@ -168,7 +168,7 @@ void MainWindow::resolveModRequirements(std::shared_ptr<QueuedMod> entry, int of
             }
             else if (legacy)
             {
-                auto link = parseModLink(dep["url"].toString());
+                auto link = parseRequirementLink(dep, entry->link.game, entry->gameId);
                 if (!link.valid())
                 {
                     finishModResolution(entry,
@@ -243,9 +243,83 @@ void MainWindow::selectModFile(std::shared_ptr<QueuedMod> entry, bool legacy)
         }
         if (entry->link.file.isEmpty())
         {
-            if (main.size() == 1)
+            const bool isUserSelectedMod = entry->reason == "Your list";
+            if (main.size() == 1 && (!isUserSelectedMod || available.size() == 1))
             {
                 chosen = main.first();
+            }
+            else if (isUserSelectedMod && available.size() > 1)
+            {
+                QDialog dialog(this);
+                dialog.setWindowTitle("Choose files · " + entry->name);
+                dialog.resize(700, 430);
+                auto* layout = new QVBoxLayout(&dialog);
+                layout->addWidget(
+                    new QLabel("Select every file you want downloaded for this mod. "
+                               "For example, choose the main archive and its texture archive.",
+                        &dialog));
+                auto* fileList = new QListWidget(&dialog);
+                fileList->setSelectionMode(QAbstractItemView::MultiSelection);
+                for (const auto& file : available)
+                {
+                    auto* item = new QListWidgetItem(
+                        file["name"].toString() + " · " + file["version"].toString() + " · " +
+                            file["category_name"].toString() + " · ID " + jsonId(file["file_id"]),
+                        fileList);
+                    item->setData(Qt::UserRole, QJsonDocument(file).toJson(QJsonDocument::Compact));
+                    if (file["category_id"].toInt() == 1)
+                    {
+                        item->setSelected(true);
+                    }
+                }
+                layout->addWidget(fileList, 1);
+                auto* buttons =
+                    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+                layout->addWidget(buttons);
+                QObject::connect(buttons,
+                    &QDialogButtonBox::accepted,
+                    &dialog,
+                    [&]
+                {
+                    if (fileList->selectedItems().isEmpty())
+                    {
+                        QMessageBox::information(
+                            &dialog, "Choose a file", "Select at least one file to continue.");
+                        return;
+                    }
+                    dialog.accept();
+                });
+                QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+                if (dialog.exec() != QDialog::Accepted)
+                {
+                    finishModResolution(
+                        entry, "File selection postponed. Run Collect again when ready.");
+                    return;
+                }
+                QList<QJsonObject> selections;
+                for (auto* item : fileList->selectedItems())
+                {
+                    selections.append(
+                        QJsonDocument::fromJson(item->data(Qt::UserRole).toByteArray()).object());
+                }
+                chosen = selections.takeFirst();
+                for (const auto& extra : selections)
+                {
+                    ModLink extraLink = entry->link;
+                    extraLink.file = jsonId(extra["file_id"]);
+                    auto extraEntry =
+                        enqueueMod(extraLink, entry->reason, entry->name, entry->notes);
+                    if (!extraEntry)
+                    {
+                        finishModResolution(entry, "Could not add all selected files.");
+                        return;
+                    }
+                    extraEntry->filename = extra["file_name"].toString();
+                    extraEntry->version = extra["version"].toString();
+                    extraEntry->size = extra["size_in_bytes"].toInteger();
+                    extraEntry->resolved = false;
+                    extraEntry->state = "Waiting to check";
+                }
             }
             else
             {
@@ -283,6 +357,7 @@ void MainWindow::selectModFile(std::shared_ptr<QueuedMod> entry, bool legacy)
         }
         entry->link.file = jsonId(chosen["file_id"]);
         entry->filename = chosen["file_name"].toString();
+        entry->version = chosen["version"].toString();
         entry->size = chosen["size_in_bytes"].toInteger();
         if (entry->filename.isEmpty())
         {

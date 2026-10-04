@@ -7,6 +7,8 @@ namespace nmd
 {
 inline QString downloadHistoryKey(const QueuedMod& entry)
 {
+    // Nexus file IDs identify the selected archive. The version stored in the
+    // history record additionally protects against a replaced file ID.
     return entry.link.modKey() + "/" + entry.link.file;
 }
 inline QString modApiPath(const QueuedMod& entry)

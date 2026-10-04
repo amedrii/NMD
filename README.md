@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="nmd.svg" alt="NMD icon" width="128">
+</p>
+
 # NMD — Nexus Mod Downloader
 
 Lightweight Nexus Mod Downloader.
@@ -25,11 +29,12 @@ Free accounts require Nexus's confirmation for each file. This app does not auto
 - Reads **Nexus requirements**, not the reverse **Mods requiring this mod** list.
 - Fetches all requirement pages. Incomplete metadata and unavailable dependencies are reported as needing attention.
 - A single current main file is selected automatically. Multiple main files or file-level alternatives prompt for a choice. Compatible file versions already in the queue are reused.
+- When you enter a mod directly, a multi-select file chooser appears when it has multiple available downloads. Select the main archive plus optional texture or companion archives; each selected file is queued separately. Requirements still default to their compatible main file unless a file-specific dependency pins another version.
 - Different required files from the same mod can appear separately. A mod-level requirement is deduplicated by game and mod ID; a pinned file requirement also checks the file ID.
 - Keeps author notes visible. Legacy requirement lists can include conditional or optional requirements. Review them on Nexus; NMD cannot infer compatibility from arbitrary prose.
 - Shows off-site requirements and DLC as notes. These must be obtained or checked separately.
 - Saves archives under `<folder>/<game>/<mod ID>/<file ID>-<archive name>`. It does not extract, install or execute mods.
-- Keeps a local `.nmd-downloads.json` history in the download folder. Completed archives with matching paths and sizes are skipped. SHA-256 is recorded at completion, but existing archives are not rehashed on every queue check.
+- Keeps a local `.nmd-downloads.json` history in the download folder. Completed archives are skipped when the Nexus mod, file ID, file version, path, and size match, so the same version is not downloaded twice. Different file IDs (for example a main archive and textures) remain separate. SHA-256 is recorded at completion, but existing archives are not rehashed on every queue check.
 - Existing files without a matching completion record are preserved. Move the conflicting file or select a new folder.
 - Streams downloads to temporary files and commits only successful, size-checked archives. Failed or stopped partial transfers are discarded; reconfirm on Nexus to retry.
 - Queue and folder preferences persist under Qt's local application-data folder for **NMD / Nexus Mod Downloader**. API keys and signed download URLs are not persisted.

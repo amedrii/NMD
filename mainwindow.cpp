@@ -18,6 +18,10 @@ QString defaultQueuePath()
 
 MainWindow::MainWindow(QNetworkAccessManager* transport, const QString& storagePath)
 {
+    m_openBrowser = [](const QUrl& url)
+    {
+        return QDesktopServices::openUrl(url);
+    };
     m_networkManager = transport ? transport : new QNetworkAccessManager(this);
     m_queuePath = storagePath.isEmpty() ? defaultQueuePath() : storagePath;
     buildUi();
@@ -102,6 +106,7 @@ void MainWindow::saveQueue()
             {"reason", entry->reason},
             {"notes", entry->notes},
             {"filename", entry->filename},
+            {"version", entry->version},
             {"size", entry->size}});
     }
     QSaveFile file(m_queuePath);
@@ -134,6 +139,7 @@ void MainWindow::restoreQueue()
             if (entry)
             {
                 entry->filename = object["filename"].toString();
+                entry->version = object["version"].toString();
                 entry->size = object["size"].toInteger();
             }
         }
@@ -188,6 +194,14 @@ bool MainWindow::hasCompletedDownload(std::shared_ptr<QueuedMod> entry)
         return false;
     }
     const auto record = m_downloadHistory.value(nmd::downloadHistoryKey(*entry)).toObject();
+    // Older history files do not have a version field. They remain compatible
+    // and are validated by path and size below; new records also require the
+    // same Nexus version before they can suppress a download.
+    const auto recordedVersion = record["version"].toString();
+    if (!recordedVersion.isEmpty() && recordedVersion != entry->version)
+    {
+        return false;
+    }
     const auto expected = archiveRelativePath(entry->link, entry->filename);
     if (record["path"].toString() != expected)
     {

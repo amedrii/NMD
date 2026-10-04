@@ -102,13 +102,13 @@ void MainWindow::processAuthorizedDownloads()
         refreshQueue();
         requestJson(nmd::modApiPath(*entry) + "/files/" + entry->link.file +
                         "/download_link.json?" + query.toString(QUrl::FullyEncoded),
-            [this, entry](QJsonDocument document, QString error)
+            [this, entry](QJsonDocument document, QString requestError)
         {
             m_authorizedLinks.dequeue();
-            if (!error.isEmpty())
+            if (!requestError.isEmpty())
             {
                 entry->state = "Ready to confirm";
-                log(error);
+                log(requestError);
                 m_isDownloading = false;
                 refreshQueue();
                 processAuthorizedDownloads();
@@ -298,6 +298,7 @@ void MainWindow::downloadArchive(std::shared_ptr<QueuedMod> entry, const QUrl& i
                 m_downloadHistory[nmd::downloadHistoryKey(*entry)] = QJsonObject{{"path", relative},
                     {"size", transfer->bytes},
                     {"sha256", QString::fromLatin1(transfer->hash.result().toHex())},
+                    {"version", entry->version},
                     {"completedAt", QDateTime::currentDateTimeUtc().toString(Qt::ISODate)}};
                 saveDownloadHistory();
                 entry->downloaded = true;

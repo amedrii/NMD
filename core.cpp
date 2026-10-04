@@ -26,8 +26,8 @@ ModLink parseModLink(const QString& text)
     {
         return {};
     }
-    static const QRegularExpression web(
-        "^/([a-z0-9_]+)/mods/([1-9][0-9]*)/?$", QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression web("^/(?:games/)?([a-z0-9_]+)/mods/([1-9][0-9]*)/?$",
+        QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression nxm("^/mods/([1-9][0-9]*)/files/([1-9][0-9]*)/?$");
     static const QRegularExpression game("^[a-z0-9_]+$"), id("^[1-9][0-9]*$");
     if (url.scheme() == "nxm")
@@ -50,6 +50,47 @@ ModLink parseModLink(const QString& text)
     }
     return {};
 }
+ModLink parseRequirementLink(
+    const QJsonObject& requirement, const QString& parentGame, const QString& parentGameId)
+{
+    // Requirement metadata can use relative URLs or legacy HTTP links. Normalize
+    // those to HTTPS; parseModLink still enforces the exact Nexus host and IDs.
+    QString address = requirement["url"].toString().trimmed();
+    if (address.startsWith("//"))
+    {
+        address.prepend("https:");
+    }
+    else if (address.startsWith('/'))
+    {
+        address.prepend("https://www.nexusmods.com");
+    }
+    else if (address.startsWith("www.nexusmods.com/", Qt::CaseInsensitive) ||
+             address.startsWith("nexusmods.com/", Qt::CaseInsensitive))
+    {
+        address.prepend("https://");
+    }
+    QUrl url(address, QUrl::StrictMode);
+    if (url.scheme() == "http")
+    {
+        url.setScheme("https");
+    }
+    auto link = parseModLink(url.toString());
+    const QString modId = jsonId(requirement["modId"]);
+    if (link.valid() && url.scheme() == "https" && link.mod == modId)
+    {
+        return link;
+    }
+    // Use structured identities if Nexus supplies a missing or unrecognised URL.
+    // Never infer that a requirement belongs to its parent's game: IDs are scoped
+    // by game, and cross-game requirements must not resolve to an unrelated mod.
+    if (!requirement["gameId"].isNull() && !requirement["gameId"].isUndefined() &&
+        jsonId(requirement["gameId"]) == parentGameId)
+    {
+        return parseModLink("https://www.nexusmods.com/" + parentGame + "/mods/" + modId);
+    }
+    return {};
+}
+
 bool validSignedNxm(const QUrl& url, QString* error)
 {
     auto fail = [error](const QString& message)

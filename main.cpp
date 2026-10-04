@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <QIcon>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QTimer>
@@ -7,6 +8,7 @@
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/icons/nmd.svg"));
     QCoreApplication::setOrganizationName("NMD");
     QCoreApplication::setApplicationName("Nexus Mod Downloader");
     QCoreApplication::setApplicationVersion("0.1.0");

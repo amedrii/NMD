@@ -17,6 +17,8 @@ struct ModLink
     }
 };
 ModLink parseModLink(const QString& text);
+ModLink parseRequirementLink(
+    const QJsonObject& requirement, const QString& parentGame, const QString& parentGameId);
 bool validSignedNxm(const QUrl& url, QString* error = nullptr);
 QString safeArchiveName(QString name);
 QString jsonId(const QJsonValue& value);

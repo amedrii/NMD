@@ -13,6 +13,9 @@ struct QueuedMod
     QString notes;
     QString state = "Waiting to check";
     QString gameId;
+    // Nexus's file version is stored with the file id so a replaced archive is
+    // not mistaken for the copy that was already downloaded.
+    QString version;
     qint64 size = 0;
     bool resolved = false;
     bool downloaded = false;
